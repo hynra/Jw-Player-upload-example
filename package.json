@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/hynra/Jw-Player-upload-example/issues"
   },
-  "homepage": "https://github.com/hynra/Jw-Player-upload-example#readme"
+  "homepage": "https://github.com/hynra/Jw-Player-upload-example#readme",
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "jwplayer-node": "^1.2.1"
+  }
 }
