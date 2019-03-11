@@ -8,9 +8,7 @@ const jwplayer = require('jwplayer-node')
 let options = {
     title: "upload example",
     description: "upload video to jwplayer hosting using node js",
-    sourcetype: "url",
-    sourceformat: "youtube",
-    sourceurl: "https://www.youtube.com/watch?v=xcJtL7QggTI"
+    sourcetype: "file"
 
 };
 
@@ -21,14 +19,18 @@ jwplayer.call_api(
     },
     options)
     .then(succ => {
-        console.log(succ);
-
-        // succ.data
-        /*{
-            status: 'ok',
-                rate_limit: { reset: 1550825760, limit: 60, remaining: 59 },
-            video: { key: 'video_key' }
-        }*/
+        console.log(succ.data);
+        /*
+        { status: 'ok',
+  media: { type: 'video', key: 'OyDxj6hI' },
+  link:
+   { path: '/v1/videos/upload',
+     query:
+      { token: 'fb5b234a071812dec46bffdd009c31d86a01e6a0d08',
+        key: 'OyDxj6hI' },
+     protocol: 'http',
+     address: 'upload.jwplatform.com' },
+  rate_limit: { reset: 1552279560, limit: 60, remaining: 59 } }*/
     })
     .catch(err => {
         console.log(err);
