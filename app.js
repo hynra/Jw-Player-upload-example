@@ -1,37 +1,107 @@
 require('dotenv').load();
 const key = process.env.KEY;
 const secret = process.env.SECRET;
+const qs = require("querystring");
+const request = require('request-promise-native');
+const fs = require("fs");
+const promisePipe = require("promisepipe");
 
 const jwplayer = require('jwplayer-node')
-    ({ api_key: key, api_secret: secret });
+({api_key: key, api_secret: secret});
 
 let options = {
     title: "upload example",
     description: "upload video to jwplayer hosting using node js",
-    sourcetype: "file"
+    upload_method: "s3",
+    upload_content_type: "video/mp4"
 
 };
 
-jwplayer.call_api(
+getFile = (path) =>{
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, function (err, file) {
+            if (err) {
+                reject(err)
+            }else {
+                resolve(file);
+            }
+        });
+    })
+};
+
+run = async () => {
+    try {
+        let data = await jwplayer.call_api(
+            {
+                method: 'post',
+                path: '/v1/videos/create',
+            },
+            options);
+
+        let query = {
+            AWSAccessKeyId: data.data.link.query.AWSAccessKeyId,
+            Expires: data.data.link.query.Expires,
+            Signature: qs.escape(data.data.link.query.Signature)
+        };
+
+        //let stream = await promisePipe(fs.createReadStream(__dirname + '/sample.mp4'));
+        //let stream = fs.createReadStream(__dirname + '/sample.mp4', {encoding: 'binary'});
+        let filePath = __dirname + '/sample.mp4';
+        let file = await getFile(filePath);
+        let path = data.data.media.key;
+        let url = data.data.link.protocol + "://" + data.data.link.address + "/" + path;
+        let _options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'video/mp4'
+            },
+            uri: url,
+            qs: query,
+            body: file
+        };
+
+        let resp = await request(_options);
+        console.log(resp);
+
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+run();
+/*jwplayer.call_api(
     {
         method: 'post',
         path: '/v1/videos/create',
     },
     options)
-    .then(succ => {
-        console.log(succ.data);
-        /*
-        { status: 'ok',
-  media: { type: 'video', key: 'OyDxj6hI' },
-  link:
-   { path: '/v1/videos/upload',
-     query:
-      { token: 'fb5b234a071812dec46bffdd009c31d86a01e6a0d08',
-        key: 'OyDxj6hI' },
-     protocol: 'http',
-     address: 'upload.jwplatform.com' },
-  rate_limit: { reset: 1552279560, limit: 60, remaining: 59 } }*/
+    .then(data => {
+        let query = {
+            AWSAccessKeyId: data.data.link.query.AWSAccessKeyId,
+            Expires: data.data.link.query.Expires,
+            Signature: qs.escape(data.data.link.query.Signature)
+        };
+
+
+        console.log("file ", __dirname + '/sample.mp4');
+        const itemStream = fs.createReadStream(__dirname + '/sample.mp4');
+        let path = data.data.media.key;
+        let url = data.data.link.protocol + "://" + data.data.link.address + "/" + path;
+        let options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'video/mp4'
+            },
+            uri: url,
+            qs: query,
+            body: itemStream
+        };
+
+        return request(options)
+    })
+    .then(data => {
+        console.log(data);
     })
     .catch(err => {
         console.log(err);
-    })
+    });*/

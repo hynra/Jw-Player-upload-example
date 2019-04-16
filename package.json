@@ -18,6 +18,11 @@
   "homepage": "https://github.com/hynra/Jw-Player-upload-example#readme",
   "dependencies": {
     "dotenv": "^6.2.0",
-    "jwplayer-node": "^1.2.1"
+    "fs": "0.0.1-security",
+    "jwplayer-node": "^1.2.1",
+    "promisepipe": "^3.0.0",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   }
 }
